@@ -21,6 +21,7 @@
 #include <boost/functional/hash.hpp>
 #include <cstdlib>
 #include <utility>
+#include <iomanip>
 
 using namespace std;
 using namespace osrm;
@@ -59,9 +60,9 @@ void printFailure(json::Object result) {
  * Create a pair out of 2 longs, always ordering them in ascending order
  * This helps avoid duplicates such as <123, 456> and <456, 123>
  */
-pair<long, long> makePair(long one, long two) {
-    if (one < two) {return pair<long, long>(one, two);}
-    else {return pair<long, long>(two, one);}
+pair<uint64_t, uint64_t> makePair(uint64_t one, uint64_t two) {
+    if (one < two) {return pair<uint64_t, uint64_t>(one, two);}
+    else {return pair<uint64_t, uint64_t>(two, one);}
 }
 
 /*
@@ -69,9 +70,10 @@ pair<long, long> makePair(long one, long two) {
  *
  * <node1, node2> = value
  */
-void printHeatmap(unordered_map<pair<long, long>, long, boost::hash<pair<long, long>>> heatmap) {
+void printHeatmap(unordered_map<pair<uint64_t, uint64_t>, uint64_t, boost::hash<pair<uint64_t, uint64_t>>> heatmap) {
+    cout << "\n" << setw(12) << "Node1" << "  " << setw(12) << "Node2" << "  " << setw(8) << "Count" << "\n\n";
     for (auto segment : heatmap) {
-        cout << "<" << segment.first.first << " " << segment.first.second << "> = " << segment.second << "\n";
+        cout << setw(12) << segment.first.first << "  " << setw(12) << segment.first.second << "  " << setw(8) << segment.second << "\n";
     }
 }
 
@@ -127,7 +129,7 @@ int main(int argc, const char *argv[])
     json::Object result;
 
     // HeatMap Object
-    unordered_map<pair<long, long>, long, boost::hash<pair<long, long>>> heatmap;
+    unordered_map<pair<uint64_t, uint64_t>, uint64_t, boost::hash<pair<uint64_t, uint64_t>>> heatmap;
 
     // Execute routing request, this does the heavy lifting
     const auto status = osrm.Route(params, result);
@@ -149,11 +151,11 @@ int main(int argc, const char *argv[])
             json::Array nodes = annotations.values["nodes"].get<json::Array>();
             
             for (int i = 0; i < nodes.values.size()-1; i++) {
-                long node1 = nodes.values[i].get<json::Number>().value;
-                long node2 = nodes.values[i+1].get<json::Number>().value;
-                pair<long, long> p = makePair(node1, node2);
+                uint64_t node1 = nodes.values[i].get<json::Number>().value;
+                uint64_t node2 = nodes.values[i+1].get<json::Number>().value;
+                pair<uint64_t, uint64_t> p = makePair(node1, node2);
                 if (heatmap.find(p) == heatmap.end()) {
-                    heatmap.insert(pair<pair<long, long>, long>(p, 1));
+                    heatmap.insert(pair<pair<uint64_t, uint64_t>, uint64_t>(p, 1));
                 } else {
                     heatmap[p] = heatmap[p] + 1;
                 }
