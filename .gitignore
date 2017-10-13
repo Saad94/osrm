@@ -1,5 +1,5 @@
 *.swp
 osrm-backend/
 maps/
-example/build/CMakeFiles
-example/cmake/
+code/build/CMakeFiles
+code/cmake/
