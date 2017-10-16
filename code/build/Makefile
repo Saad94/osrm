@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/msh5/osrm/example
+CMAKE_SOURCE_DIR = /home/msh5/osrm/code
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/msh5/osrm/example/build
+CMAKE_BINARY_DIR = /home/msh5/osrm/code/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/msh5/osrm/example/build/CMakeFiles /home/msh5/osrm/example/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/msh5/osrm/code/build/CMakeFiles /home/msh5/osrm/code/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/msh5/osrm/example/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/msh5/osrm/code/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,44 +111,124 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named osrm-example
+# Target rules for targets named create-heatmap
 
 # Build rule for target.
-osrm-example: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 osrm-example
-.PHONY : osrm-example
+create-heatmap: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 create-heatmap
+.PHONY : create-heatmap
 
 # fast build rule for target.
-osrm-example/fast:
-	$(MAKE) -f CMakeFiles/osrm-example.dir/build.make CMakeFiles/osrm-example.dir/build
-.PHONY : osrm-example/fast
+create-heatmap/fast:
+	$(MAKE) -f CMakeFiles/create-heatmap.dir/build.make CMakeFiles/create-heatmap.dir/build
+.PHONY : create-heatmap/fast
 
-example.o: example.cpp.o
+#=============================================================================
+# Target rules for targets named reduce-osm-files
 
-.PHONY : example.o
+# Build rule for target.
+reduce-osm-files: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 reduce-osm-files
+.PHONY : reduce-osm-files
+
+# fast build rule for target.
+reduce-osm-files/fast:
+	$(MAKE) -f CMakeFiles/reduce-osm-files.dir/build.make CMakeFiles/reduce-osm-files.dir/build
+.PHONY : reduce-osm-files/fast
+
+#=============================================================================
+# Target rules for targets named find-node-coordinates
+
+# Build rule for target.
+find-node-coordinates: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 find-node-coordinates
+.PHONY : find-node-coordinates
+
+# fast build rule for target.
+find-node-coordinates/fast:
+	$(MAKE) -f CMakeFiles/find-node-coordinates.dir/build.make CMakeFiles/find-node-coordinates.dir/build
+.PHONY : find-node-coordinates/fast
+
+createHeatmap.o: createHeatmap.cpp.o
+
+.PHONY : createHeatmap.o
 
 # target to build an object file
-example.cpp.o:
-	$(MAKE) -f CMakeFiles/osrm-example.dir/build.make CMakeFiles/osrm-example.dir/example.cpp.o
-.PHONY : example.cpp.o
+createHeatmap.cpp.o:
+	$(MAKE) -f CMakeFiles/create-heatmap.dir/build.make CMakeFiles/create-heatmap.dir/createHeatmap.cpp.o
+.PHONY : createHeatmap.cpp.o
 
-example.i: example.cpp.i
+createHeatmap.i: createHeatmap.cpp.i
 
-.PHONY : example.i
+.PHONY : createHeatmap.i
 
 # target to preprocess a source file
-example.cpp.i:
-	$(MAKE) -f CMakeFiles/osrm-example.dir/build.make CMakeFiles/osrm-example.dir/example.cpp.i
-.PHONY : example.cpp.i
+createHeatmap.cpp.i:
+	$(MAKE) -f CMakeFiles/create-heatmap.dir/build.make CMakeFiles/create-heatmap.dir/createHeatmap.cpp.i
+.PHONY : createHeatmap.cpp.i
 
-example.s: example.cpp.s
+createHeatmap.s: createHeatmap.cpp.s
 
-.PHONY : example.s
+.PHONY : createHeatmap.s
 
 # target to generate assembly for a file
-example.cpp.s:
-	$(MAKE) -f CMakeFiles/osrm-example.dir/build.make CMakeFiles/osrm-example.dir/example.cpp.s
-.PHONY : example.cpp.s
+createHeatmap.cpp.s:
+	$(MAKE) -f CMakeFiles/create-heatmap.dir/build.make CMakeFiles/create-heatmap.dir/createHeatmap.cpp.s
+.PHONY : createHeatmap.cpp.s
+
+findNodeCoordinates.o: findNodeCoordinates.cpp.o
+
+.PHONY : findNodeCoordinates.o
+
+# target to build an object file
+findNodeCoordinates.cpp.o:
+	$(MAKE) -f CMakeFiles/find-node-coordinates.dir/build.make CMakeFiles/find-node-coordinates.dir/findNodeCoordinates.cpp.o
+.PHONY : findNodeCoordinates.cpp.o
+
+findNodeCoordinates.i: findNodeCoordinates.cpp.i
+
+.PHONY : findNodeCoordinates.i
+
+# target to preprocess a source file
+findNodeCoordinates.cpp.i:
+	$(MAKE) -f CMakeFiles/find-node-coordinates.dir/build.make CMakeFiles/find-node-coordinates.dir/findNodeCoordinates.cpp.i
+.PHONY : findNodeCoordinates.cpp.i
+
+findNodeCoordinates.s: findNodeCoordinates.cpp.s
+
+.PHONY : findNodeCoordinates.s
+
+# target to generate assembly for a file
+findNodeCoordinates.cpp.s:
+	$(MAKE) -f CMakeFiles/find-node-coordinates.dir/build.make CMakeFiles/find-node-coordinates.dir/findNodeCoordinates.cpp.s
+.PHONY : findNodeCoordinates.cpp.s
+
+reduceOsmFiles.o: reduceOsmFiles.cpp.o
+
+.PHONY : reduceOsmFiles.o
+
+# target to build an object file
+reduceOsmFiles.cpp.o:
+	$(MAKE) -f CMakeFiles/reduce-osm-files.dir/build.make CMakeFiles/reduce-osm-files.dir/reduceOsmFiles.cpp.o
+.PHONY : reduceOsmFiles.cpp.o
+
+reduceOsmFiles.i: reduceOsmFiles.cpp.i
+
+.PHONY : reduceOsmFiles.i
+
+# target to preprocess a source file
+reduceOsmFiles.cpp.i:
+	$(MAKE) -f CMakeFiles/reduce-osm-files.dir/build.make CMakeFiles/reduce-osm-files.dir/reduceOsmFiles.cpp.i
+.PHONY : reduceOsmFiles.cpp.i
+
+reduceOsmFiles.s: reduceOsmFiles.cpp.s
+
+.PHONY : reduceOsmFiles.s
+
+# target to generate assembly for a file
+reduceOsmFiles.cpp.s:
+	$(MAKE) -f CMakeFiles/reduce-osm-files.dir/build.make CMakeFiles/reduce-osm-files.dir/reduceOsmFiles.cpp.s
+.PHONY : reduceOsmFiles.cpp.s
 
 # Help Target
 help:
@@ -157,11 +237,19 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... create-heatmap"
+	@echo "... reduce-osm-files"
 	@echo "... rebuild_cache"
-	@echo "... osrm-example"
-	@echo "... example.o"
-	@echo "... example.i"
-	@echo "... example.s"
+	@echo "... find-node-coordinates"
+	@echo "... createHeatmap.o"
+	@echo "... createHeatmap.i"
+	@echo "... createHeatmap.s"
+	@echo "... findNodeCoordinates.o"
+	@echo "... findNodeCoordinates.i"
+	@echo "... findNodeCoordinates.s"
+	@echo "... reduceOsmFiles.o"
+	@echo "... reduceOsmFiles.i"
+	@echo "... reduceOsmFiles.s"
 .PHONY : help
 
 

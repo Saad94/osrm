@@ -27,11 +27,13 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR AND NOT MSVC_IDE)
             endif()
 
             link_directories(${LibOSRM_LIBRARY_DIRS})
-            add_executable(osrm-example example.cpp)
+            add_executable(create-heatmap createHeatmap.cpp)
+            add_executable(reduce-osm-files reduceOsmFiles.cpp)
+            add_executable(find-node-coordinates findNodeCoordinates.cpp)
 
             find_package(LibOSRM REQUIRED)
 
-            target_link_libraries(osrm-example ${LibOSRM_LIBRARIES} ${LibOSRM_DEPENDENT_LIBRARIES})
+            target_link_libraries(create-heatmap ${LibOSRM_LIBRARIES} ${LibOSRM_DEPENDENT_LIBRARIES})
             include_directories(SYSTEM ${LibOSRM_INCLUDE_DIRS})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LibOSRM_CXXFLAGS}")
 

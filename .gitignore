@@ -1,5 +1,8 @@
 *.swp
 osrm-backend/
 maps/
-code/build/CMakeFiles
+reduced_maps/
+heatmaps/
+coords/
+code/build/
 code/cmake/
