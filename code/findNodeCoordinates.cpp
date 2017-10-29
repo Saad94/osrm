@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, const char *argv[]) {
     if (argc < 4) {
-        cout << "\nUsage: " << argv[0] << " <reduced_osm_file> <heatmap_file> <outputDir>" << "\n\n";
+        cout << "\nUsage: " << argv[0] << " <reduced_osm_file> <heatmap_file> <output_file>" << "\n\n";
         return EXIT_FAILURE;
     }
 
@@ -19,12 +19,13 @@ int main(int argc, const char *argv[]) {
     string line, buffer;
     string osm_file = argv[1];
     string heatmap_file = argv[2];
-    string outputDir = argv[3];
+    //string outputDir = argv[3];
+    string output_file = argv[3];
     unordered_map<uint64_t, pair<double, double>> nodes;
-    string state;
-    if (heatmap_file.rfind("/") != string::npos) {state = heatmap_file.substr(heatmap_file.rfind("/")+1);}
-    else {state = heatmap_file;}
-    string output_file = outputDir + state.substr(0, state.length()-8) + ".coords";
+    //string state;
+    //if (heatmap_file.rfind("/") != string::npos) {state = heatmap_file.substr(heatmap_file.rfind("/")+1);}
+    //else {state = heatmap_file;}
+    //string output_file = outputDir + state.substr(0, state.length()-8) + ".coords";
 
     ifstream file(osm_file);
 
@@ -45,6 +46,7 @@ int main(int argc, const char *argv[]) {
     file.close();
     file = ifstream(heatmap_file); 
     ofstream outfile = ofstream(output_file);
+    outfile.precision(10);
 
     if (file.is_open()) {
         while(getline(file, line)) {

@@ -4,7 +4,7 @@ import reverse_geocoder as rg
 from collections import defaultdict
 import ast
 
-infile = "/srv/data/strava-dataset/uniq_athId_loc.txt"
+infile = "/srv/data/strava-dataset/total_athId_loc.txt"
 outdir = "/srv/data/strava-dataset/states/"
 us_map = defaultdict(list)
 ids = []
