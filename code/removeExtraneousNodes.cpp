@@ -18,10 +18,10 @@ class Way {
 
 class Segment {
   public:
-      string prev, cur, next;
+      string prev, cur, next, endpoint, highway;
 
       Segment() {}
-      Segment(string p, string c, string n) {prev = p; cur = c; next = n;}
+      Segment(string p, string c, string n, string e, string h) {prev = p; cur = c; next = n; endpoint = e; highway = h;}
 };
 
 ostream& operator<<(ostream & stream, const vector<string> & v) {
@@ -51,7 +51,7 @@ string parseCurLine(string line) {
         if (line.find("k=\"highway\"") != string::npos) {
             return "highway";
         } else {
-            return "tag";
+            return "other";
         }
     }
 }
@@ -71,7 +71,7 @@ void extractWays(ifstream & file, vector<Way> & ways, vector<Way> & highways) {
                     ways.push_back(way);
                     if (way.highway) {highways.push_back(way);}
                     break;
-                } else if (tmp == "tag") {
+                } else if (tmp == "other") {
                     continue;
                 } else if (tmp == "highway") {
                     way.highway = true;
@@ -85,13 +85,14 @@ void extractWays(ifstream & file, vector<Way> & ways, vector<Way> & highways) {
 
 void extractSegments(vector<Way> & ways, vector<Segment> & segments) {
     for (Way way : ways) {
-        string prev, cur, next;
+        string prev, cur, next, endpoint;
 
         for (int i = 0; i < way.nodes.size(); i++) {
             prev = i == 0 ? "" : way.nodes[i-1];
             cur = way.nodes[i];
             next = i == way.nodes.size()-1 ? "" : way.nodes[i+1];
-            segments.push_back(Segment(prev, cur, next));
+            endpoint = (i == 0 || i == way.nodes.size()-1) ? "true" : "false";
+            segments.push_back(Segment(prev, cur, next, endpoint, "false"));
         }
     }
 }
@@ -139,7 +140,9 @@ int main(int argc, const char *argv[]) {
         string prev = segment.prev;
         string cur = segment.cur;
         string next = segment.next;
-        vector<string> v; v.push_back(prev); v.push_back(next);
+        string endpoint = segment.endpoint;
+        string highway = segment.highway;
+        vector<string> v; v.push_back(prev); v.push_back(next); v.push_back(endpoint); v.push_back(highway);
         vector<vector<string>> blank;
 
         if (nodeNeighbours.find(cur) == nodeNeighbours.end()) {
@@ -148,31 +151,47 @@ int main(int argc, const char *argv[]) {
         nodeNeighbours[cur].push_back(v);
     }
 
-    int numOnes = 0;
+    int numOnes = 0, numEndpoints = 0;
     unordered_set<string> uniqueNodes;
+
     for (Segment segment : highwaysegments) {
         uniqueNodes.insert(segment.cur);
         if (nodeNeighbours[segment.cur].size() == 1) {
+            nodeNeighbours[segment.cur][0][3] = "true";
             numOnes++;
-            cout << segment.cur << "\n";
-            if (numOnes == 10) {break;}
+            if (segment.endpoint == "true") {numEndpoints++;}
         }
     }
     cout << "uniqueNodes = " << uniqueNodes.size() << "\n";
     cout << "highwaysegments = " << highwaysegments.size() << "\n";
     cout << "numOnes = " << numOnes << "\n";
+    cout << "numEndpoints = " << numEndpoints << "\n";
     file = ifstream(osm_file);
 
     if (file.is_open()) {
-        //while (getline(file, line)) {
+        while (getline(file, line)) {
+            string cpy = string(line);
+            cpy = parseCurLine(cpy);
 
-            //buffer += line;
+            if (cpy[0] >= '0' && cpy[0] <= '9') {
+                /* 
+                 * <nd> tag inside a way
+                 * if (occurs_once && is_not_an_endpoint && is_a_highway_node) {skip}
+                 */
+                if (nodeNeighbours[cpy].size() == 1 && nodeNeighbours[cpy][0][2] == "false" && nodeNeighbours[cpy][0][3] == "true") {
+                    // Skip that node
+                } else {
+                    buffer += line + "\n";
+                }
+            } else {
+                buffer += line + "\n";
+            }
 
-            //if (counter % 1000 == 0) {
-                //output << buffer;
-                //buffer = "";
-            //}
-        //}
+            if (counter % 1000 == 0) {
+                output << buffer;
+                buffer = "";
+            }
+        }
 
         output << buffer;
         file.close();
