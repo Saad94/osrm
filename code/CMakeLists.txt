@@ -33,6 +33,8 @@ add_executable(reduce-osm-files reduceOsmFiles.cpp)
 add_executable(find-node-coordinates findNodeCoordinates.cpp)
 add_executable(remove-osm-metadata removeOsmMetadata.cpp)
 add_executable(remove-extraneous-nodes removeExtraneousNodes.cpp)
+add_executable(create-kml-file createKmlFile.cpp)
+add_executable(create-html-file createHtmlFile.cpp)
 
 find_package(LibOSRM REQUIRED)
 

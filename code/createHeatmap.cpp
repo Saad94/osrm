@@ -51,7 +51,7 @@ void signalHandler(int signum) {
  * Comparator function for sorting
  */
 bool compare(pair<pair<uint64_t, uint64_t>, uint64_t> one, pair<pair<uint64_t, uint64_t>, uint64_t> two) {
-    return one.second < two.second;
+    return one.second >= two.second;
 }
 
 /*
@@ -64,7 +64,7 @@ vector<pair<pair<uint64_t, uint64_t>, uint64_t>> sortHeatmap(Heatmap & heatmap) 
         pairs.push_back(*itr);
     }
 
-    //sort(pairs.begin(), pairs.end(), compare);
+    sort(pairs.begin(), pairs.end(), compare);
 
     return pairs;
 }
@@ -125,6 +125,39 @@ void printFailure(json::Object result) {
 // ============================================================================================
 //  Helper Functions
 // ============================================================================================
+
+/*
+ * Read the map's boundaries from the osm file
+ */
+vector<double> getMapBoundaries(string filename_osm) {
+    vector<double> v;
+    double d;
+    string line, cpy = "";
+    ifstream file(filename_osm);
+
+    if (!file.is_open()) {
+        cout << "\nOSM File couldn't be opened.\n\n";
+        exit(EXIT_FAILURE);
+    }
+
+    getline(file, line); getline(file, line); getline(file, line);
+
+    for (char c : line) {
+        if (c == ' ' || c == '-' || c == '.' || (c >= '0' && c <= '9')) {
+            cpy += c;
+        }
+    }
+
+    boost::trim_left(cpy);
+    stringstream str(cpy);
+    
+    str >> d; v.push_back(d);
+    str >> d; v.push_back(d);
+    str >> d; v.push_back(d);
+    str >> d; v.push_back(d);
+    
+    return v;
+}
 
 /*
  * Return an ifstream object based on whether the input file lies in either one of two directories.
@@ -210,13 +243,13 @@ void insertUserIntoMap(Heatmap & userMap, Heatmap & heatmap) {
         uint64_t count = entry.second;
 
         // Pruning step, don't insert segments which only occur once
-        if (count > 1) {
+        //if (count > 1) {
             if (heatmap.find(segment) == heatmap.end()) {
                 heatmap.insert(pair<pair<uint64_t, uint64_t>, uint64_t>(segment, 1));
             } else {
                 heatmap[segment] = heatmap[segment] + 1;
             }
-        }
+        //}
     }
 }
 
@@ -233,26 +266,43 @@ RouteParameters createRouteParameters() {
 /*
  * Check whether the route exists inside the currently loaded map region
  */
-bool routeExistsInCurrentRegion(json::Object route) {
-    const auto distance = route.values["distance"].get<json::Number>().value;
-    const auto duration = route.values["duration"].get<json::Number>().value;
-    return distance != 0 && duration != 0;
+//bool routeExistsInCurrentRegion(json::Object route) {
+    //const auto distance = route.values["distance"].get<json::Number>().value;
+    //const auto duration = route.values["duration"].get<json::Number>().value;
+    //return distance != 0 && duration != 0;
+//}
+
+bool routeExistsInCurrentRegion(vector<double> mapBoundaries, util::Coordinate start, util::Coordinate end) {
+    vector<util::Coordinate> coords; coords.push_back(start); coords.push_back(end);
+    util::FloatLatitude minLat{mapBoundaries[0]}, maxLat{mapBoundaries[2]};
+    util::FloatLongitude minLon{mapBoundaries[1]}, maxLon{mapBoundaries[3]};
+    int outofbounds = 0;
+
+    for (util::Coordinate coord : coords) {
+        util::FloatLatitude lat = util::toFloating(coord.lat);
+        util::FloatLongitude lon = util::toFloating(coord.lon);
+
+        if (!(lat >= minLat && lat <= maxLat && lon >= minLon && lon <= maxLon)) {
+            outofbounds++;           
+        }
+    }
+    
+    return outofbounds != 2;
 }
 
 // ============================================================================================
 //  Thread Work
 // ============================================================================================
 
-void doWork(EngineConfig config, int start, int end, vector<string> & filenames, Heatmap *heatmap) {
+void doWork(EngineConfig config, int start, int end, vector<string> & filenames, Heatmap *heatmap, vector<double> & mapBoundaries) {
     
     // Routing machine with several services (such as Route, Table, Nearest, Trip, Match)
     const OSRM osrm{config};
 
-    // Set Object (so that each user's nodes are only counted once)
-    Heatset userSet;
-
     // User specific Heatmap Object
     Heatmap userMap;
+
+    int TEST = 0;
 
     string routeData;
 
@@ -260,8 +310,8 @@ void doWork(EngineConfig config, int start, int end, vector<string> & filenames,
         string file = filenames[i];
 
         // Find which of the 2 athlete directories file is in and open it
-        //ifstream file_athlete = openFile(file);
-        ifstream file_athlete(file);
+        ifstream file_athlete = openFile(file);
+        //ifstream file_athlete(file);
 
         if (file_athlete.is_open()) { 
             while (getline(file_athlete, routeData)) 
@@ -278,37 +328,44 @@ void doWork(EngineConfig config, int start, int end, vector<string> & filenames,
                 // Skip current route if it doesn't contain enough coordinates
                 if (params.coordinates.size() < 2) { continue; }
 
-                // Execute routing request, this does the heavy lifting
-                const auto status = osrm.Route(params, result);
+                if (routeExistsInCurrentRegion(mapBoundaries, params.coordinates[0], params.coordinates[params.coordinates.size()-1])) {
 
-                if (status == Status::Ok) {
-                    auto &routes = result.values["routes"].get<json::Array>();
-                    
-                    // Let's just use the first route
-                    auto &route = routes.values.at(0).get<json::Object>();
-                   
-                    // Check if route exists in the currently loaded map
-                    if (routeExistsInCurrentRegion(route)) 
-                    {
-                        // Extract pairs of nodes from the route and insert into a userHeatmap
-                        insertRouteIntoMap(route, userMap);
-                    } else {
-                        //printRouteNotInCurrentRegion(params, filename_athlete);
+                    // Execute routing request, this does the heavy lifting
+                    const auto status = osrm.Route(params, result);
+
+                    if (status == Status::Ok) {
+                        auto &routes = result.values["routes"].get<json::Array>();
+                        
+                        // Let's just use the first route
+                        auto &route = routes.values.at(0).get<json::Object>();
+                       
+                        // Check if route exists in the currently loaded map
+                        //if (routeExistsInCurrentRegion(route)) 
+                        //{
+                            // Extract pairs of nodes from the route and insert into a userHeatmap
+                            insertRouteIntoMap(route, userMap);
+                        //} else {
+                            //printRouteNotInCurrentRegion(params, filename_athlete);
+                            //TEST++;
+                        //}
+                    } else if (status == Status::Error) {
+                        printFailure(result);
                     }
-                } else if (status == Status::Error) {
-                    printFailure(result);
+                } else {
+                    TEST++;
                 }
             }
 
             // Insert pairs from the userMap into the Heatmap
             insertUserIntoMap(userMap, *heatmap);
 
-            userSet.clear();
+            userMap.clear();
             file_athlete.close();
         }
 
-        if (i%10 == 0) { cout << this_thread::get_id() << " i = " << i << "\n"; }
+        if (i%200 == 0) { cout << this_thread::get_id() << " i = " << i << "\n"; }
     }
+    cout << this_thread::get_id() << " FAILED = " << TEST << "\n";
 }
 
 /*
@@ -336,17 +393,23 @@ void mergeHeatmaps(Heatmap heatmaps[], int num) {
 
 int main(int argc, const char *argv[])
 {
-    if (argc < 4) {
-        std::cerr << "\nUsage: " << argv[0] << " <data.osrm> <US_state_file> <output_file>\n\n";
+    if (argc < 5) {
+        cerr << "\nUsage: " << argv[0] << " <data.osrm> <map.osm> <US_state_file> <output_file>\n\n";
         return EXIT_FAILURE;
     }
 
     // Register signal handler to allow prevent data loss upon program termination
     signal(SIGINT, signalHandler);
 
+    string filename_athlete, routeData;
+    string filename_osrm = argv[1];
+    string filename_osm = argv[2];
+    string filename_US_state = argv[3];
+    string filename_output = argv[4];
+    
     // Configure based on a .osrm base path, and no datasets in shared mem from osrm-datastore
     EngineConfig config;
-    config.storage_config = {argv[1]};
+    config.storage_config = {filename_osrm};
     config.use_shared_memory = false;
 
     // Thread related stuff
@@ -356,32 +419,25 @@ int main(int argc, const char *argv[])
     // HeatMap Object
     Heatmap heatmaps[NUM_THREADS];
 
-    string filename_athlete, routeData;
-    string filename_US_state = argv[2];
-    //string outputDir = argv[3];
-    //string state;
-    //if (filename_US_state.rfind("/") != string::npos) {state = filename_US_state.substr(filename_US_state.rfind("/")+1);}
-    //else {state = filename_US_state;}
-    //string filename_output = outputDir + state.substr(0, state.length()-4) + ".heatmap";
-    string filename_output = argv[3];
-
     ifstream file_US_state(filename_US_state);
     ofstream outfile(filename_output);
     vector<string> filenames;
     filenames.reserve(500000);
 
-    cout << "\nOpening State File: " << filename_US_state << "\n\n";
+    vector<double> mapBoundaries = getMapBoundaries(filename_osm);
 
-    //if (file_US_state.is_open()) {
-        //while (getline(file_US_state, filename_athlete) && !terminateProgram) 
-        //{
-            //filenames.push_back(filename_athlete);
-        //}
-    //} else {
-        //cout << "State File not opened\n";
-        //return EXIT_FAILURE;
-    //}
-    filenames.push_back("tmproute.txt");
+    cout << "\nOpening State File: " << filename_US_state << "\n\n";
+    int TEST = 0;
+    if (file_US_state.is_open()) {
+        while (getline(file_US_state, filename_athlete) && !terminateProgram) {
+            filenames.push_back(filename_athlete);
+            //if (TEST++ == 25000) {break;}
+        }
+    } else {
+        cout << "State File not opened\n";
+        return EXIT_FAILURE;
+    }
+    //filenames.push_back("tmproute.txt");
     cout << "filenames.size() = " << filenames.size() << "\n\n";
 
     int num = filenames.size();
@@ -391,7 +447,7 @@ int main(int argc, const char *argv[])
         int start = frac * i;
         int end = frac * (i+1);
         end = num < end ? num : end;
-        threads[i] = thread(doWork, config, start, end, ref(filenames), &heatmaps[i]);
+        threads[i] = thread(doWork, config, start, end, ref(filenames), &heatmaps[i], ref(mapBoundaries));
     }
     
     for (int i = 0; i < NUM_THREADS; i++) {
