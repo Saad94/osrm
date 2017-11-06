@@ -6,3 +6,5 @@ heatmaps/
 coords/
 code/build/
 code/cmake/
+kml/
+html/
