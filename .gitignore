@@ -1,7 +1,7 @@
 *.swp
 osrm-backend/
 maps/
-reduced_maps/
+nodes/
 heatmaps/
 coords/
 code/build/

@@ -99,6 +99,7 @@ void prettyPrintHeatmap(Heatmap & heatmap, ostream & stream) {
 void printHeatmap(Heatmap & heatmap, ostream & stream) {
     auto sortedHeatmap = sortHeatmap(heatmap);
 
+    //for (auto segment : heatmap) {
     for (auto segment : sortedHeatmap) {
         stream << segment.first.first << " " << segment.first.second << " " << segment.second << "\n";
     }
@@ -431,7 +432,7 @@ int main(int argc, const char *argv[])
     if (file_US_state.is_open()) {
         while (getline(file_US_state, filename_athlete) && !terminateProgram) {
             filenames.push_back(filename_athlete);
-            //if (TEST++ == 25000) {break;}
+            if (TEST++ == 1000) {break;}
         }
     } else {
         cout << "State File not opened\n";

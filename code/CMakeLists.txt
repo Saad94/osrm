@@ -35,6 +35,7 @@ add_executable(remove-osm-metadata removeOsmMetadata.cpp)
 add_executable(remove-extraneous-nodes removeExtraneousNodes.cpp)
 add_executable(create-kml-file createKmlFile.cpp)
 add_executable(create-html-file createHtmlFile.cpp)
+add_executable(routing-algorithm routingAlgorithm.cpp)
 
 find_package(LibOSRM REQUIRED)
 
