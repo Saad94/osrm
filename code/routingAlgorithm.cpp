@@ -61,7 +61,7 @@ bool compare(Edge* one, Edge* two) {return one->weight >= two->weight;}
 void sortEdges(vector<Edge*> edges) {sort(edges.begin(), edges.end(), compare);}
 
 /* Get vector of edges from vector of node ids */
-vector<Edge*> getEdgeVector(vector<uint64_t> nodeIds, unordered_map<uint64_t, Node*> nodes) {
+vector<Edge*> getEdgeVector(const vector<uint64_t> & nodeIds, unordered_map<uint64_t, Node*> & nodes) {
     vector<Edge*> edgeVector;
 
     for (int i = 0; i < nodeIds.size()-1; i++) {
@@ -78,7 +78,7 @@ vector<Edge*> getEdgeVector(vector<uint64_t> nodeIds, unordered_map<uint64_t, No
 }
 
 /* Get total weight of edge vector */
-uint64_t weighEdgeVector(vector<Edge*> edges) {
+uint64_t weighEdgeVector(const vector<Edge*> & edges) {
     uint64_t weight = 0;
     for (Edge* edge : edges) {weight += edge->weight;}
     return weight;
@@ -129,7 +129,7 @@ string html_suffix() {
     return "\t\t\t}\n\t\t</script>\n\n\t\t<script async defer\n\t\t\tsrc=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBSCP1vdj1J3Nm4ta-KX47aik0XbZZbQ0U&callback=initMap\">\n\t\t</script>\n\t</body>\n</html>\n";
 }
 
-string html_route(vector<uint64_t> ids, unordered_map<uint64_t, Node*> nodes, int i) {
+string html_route(const vector<uint64_t> & ids, unordered_map<uint64_t, Node*> & nodes, int i) {
     stringstream s;
     s.precision(10);
     s << "\t\t\t\t\t[";
@@ -238,7 +238,7 @@ void Route(uint64_t cur_node, double distance, unordered_map<uint64_t, Node*> & 
 
 int main(int argc, const char *argv[]) {
     if (argc < 4) {
-        cerr << "\nUsage: " << argv[0] << " <data.heatmap> <data.nodes> <output_file>\n\n";
+        cerr << "\nUsage: " << argv[0] << " <in.heatmap> <in.nodes> <out.html>\n\n";
         return EXIT_FAILURE;
     }
 
@@ -292,7 +292,7 @@ int main(int argc, const char *argv[]) {
     for (auto entry : nodes) {sortEdges(entry.second->edges);}
 
     uint64_t start_node = 38009912;
-    double distance = 0.2;
+    double distance = 0.1;
     Edge* start_edge = nodes[start_node]->edges[0];
     //start_edge->used = true;
     vector<uint64_t> curPath;
@@ -307,7 +307,9 @@ int main(int argc, const char *argv[]) {
     double tmp_lon = nodes[results[0][0]]->lon;
 
     outfile << html_prefix(tmp_lat, tmp_lon);
-
+    
+    cout << results.size() << "\n";
+    
     for (int i = 0; i < results.size(); i++) {
         vector<uint64_t> result = results[i];
         vector<Edge*> edgeVector = getEdgeVector(result, nodes);

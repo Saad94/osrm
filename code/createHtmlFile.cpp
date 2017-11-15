@@ -49,7 +49,7 @@ string displayLines(string arrayName, string colorValue) {
 
 int main(int argc, const char *argv[]) {
     if (argc < 3) {
-        cerr << "\nUsage: " << argv[0] << " <data.coords> <output_file>\n\n";
+        cerr << "\nUsage: " << argv[0] << " <in.coords> <out.html>\n\n";
         return EXIT_FAILURE;
     }
     

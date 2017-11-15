@@ -395,7 +395,7 @@ void mergeHeatmaps(Heatmap heatmaps[], int num) {
 int main(int argc, const char *argv[])
 {
     if (argc < 5) {
-        cerr << "\nUsage: " << argv[0] << " <data.osrm> <map.osm> <US_state_file> <output_file>\n\n";
+        cerr << "\nUsage: " << argv[0] << " <data.osrm> <map.osm> <US_state_file> <output.heatmap>\n\n";
         return EXIT_FAILURE;
     }
 

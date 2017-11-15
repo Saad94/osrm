@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, const char *argv[]) {
     if (argc < 4) {
-        cout << "\nUsage: " << argv[0] << " <nodes_file> <heatmap_file> <output_file>" << "\n\n";
+        cout << "\nUsage: " << argv[0] << " <in.nodes> <in.heatmap> <out.coords>" << "\n\n";
         return EXIT_FAILURE;
     }
 
