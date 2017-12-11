@@ -1,15 +1,4 @@
-#include "osrm/match_parameters.hpp"
-#include "osrm/nearest_parameters.hpp"
-#include "osrm/route_parameters.hpp"
-#include "osrm/table_parameters.hpp"
-#include "osrm/trip_parameters.hpp"
-
-#include "osrm/coordinate.hpp"
-#include "osrm/engine_config.hpp"
-#include "osrm/json_container.hpp"
-
-#include "osrm/osrm.hpp"
-#include "osrm/status.hpp"
+#include "commons.cpp"
 
 #include <exception>
 #include <iostream>
@@ -64,7 +53,7 @@ vector<pair<pair<uint64_t, uint64_t>, uint64_t>> sortHeatmap(Heatmap & heatmap) 
         pairs.push_back(*itr);
     }
 
-    sort(pairs.begin(), pairs.end(), compare);
+    //sort(pairs.begin(), pairs.end(), compare);
 
     return pairs;
 }
@@ -112,16 +101,6 @@ void printRouteNotInCurrentRegion(RouteParameters & params, string filename_athl
     cout << "Error: Route not found. " << filename_athlete << " " << params.coordinates[0] << " " << params.coordinates[params.coordinates.size()-1] << "\n";
 }
 
-/*
- * Print out the error code and message in case the routing request failed
- */
-void printFailure(json::Object result) {
-    const auto code = result.values["code"].get<json::String>().value;
-    const auto message = result.values["message"].get<json::String>().value;
-
-    std::cout << "Code: " << code << "\n";
-    std::cout << "Message: " << code << "\n";
-}
 
 // ============================================================================================
 //  Helper Functions
@@ -158,56 +137,6 @@ vector<double> getMapBoundaries(string filename_osm) {
     str >> d; v.push_back(d);
     
     return v;
-}
-
-/*
- * Return an ifstream object based on whether the input file lies in either one of two directories.
- */
-ifstream openFile(string filename) {
-    string dir1 = "/srv/data/strava-dataset/athlete-dataset-first/";
-    string dir2 = "/srv/data/strava-dataset/athlete-dataset-second/";
-    ifstream file(dir1 + filename + ".txt");
-
-    if (!file.is_open()) {
-        file = ifstream(dir2 + filename + ".txt");
-    }
-   
-    return file;
-}
-
-/*
- * Prepare the input line for parsing
- */
-stringstream prepareLineForParsing(string line) {
-    boost::erase_all(line, "[");
-    boost::erase_all(line, "]");
-    boost::replace_all(line, ",", " ");
-    return stringstream(line);
-}
-
-/*
- * Parse the data of a single route and input coordinates into the RouteParameters project
- */
-void extractRouteDataIntoParams(string routeData, RouteParameters & params) {
-    double lat, lon;
-    int i = 0;
-    stringstream str = prepareLineForParsing(routeData);
-    
-    while (str >> lat >> lon) {
-        // Reduce route granularity by half in order to speed up performance
-        if (i++ % 2 == 0) {
-            params.coordinates.push_back({util::FloatLongitude{lon}, util::FloatLatitude{lat}});
-        }   
-    }
-}
-
-/*
- * Create a pair out of 2 longs, always ordering them in ascending order
- * This helps avoid duplicates such as <123, 456> and <456, 123>
- */
-pair<uint64_t, uint64_t> makePair(uint64_t one, uint64_t two) {
-    if (one < two) {return pair<uint64_t, uint64_t>(one, two);}
-    else {return pair<uint64_t, uint64_t>(two, one);}
 }
 
 /*
@@ -252,16 +181,6 @@ void insertUserIntoMap(Heatmap & userMap, Heatmap & heatmap) {
             }
         //}
     }
-}
-
-/*
- * Create a RouteParameters object with Node Annotations
- */
-RouteParameters createRouteParameters() {
-    RouteParameters params;
-    params.annotations = true;
-    params.annotations_type = RouteParameters::AnnotationsType::Nodes;
-    return params;
 }
 
 /*
@@ -311,8 +230,8 @@ void doWork(EngineConfig config, int start, int end, vector<string> & filenames,
         string file = filenames[i];
 
         // Find which of the 2 athlete directories file is in and open it
-        ifstream file_athlete = openFile(file);
-        //ifstream file_athlete(file);
+        //ifstream file_athlete = openFile(file);
+        ifstream file_athlete(file);
 
         if (file_athlete.is_open()) { 
             while (getline(file_athlete, routeData)) 
@@ -427,18 +346,18 @@ int main(int argc, const char *argv[])
 
     vector<double> mapBoundaries = getMapBoundaries(filename_osm);
 
-    cout << "\nOpening State File: " << filename_US_state << "\n\n";
-    int TEST = 0;
-    if (file_US_state.is_open()) {
-        while (getline(file_US_state, filename_athlete) && !terminateProgram) {
-            filenames.push_back(filename_athlete);
-            if (TEST++ == 1000) {break;}
-        }
-    } else {
-        cout << "State File not opened\n";
-        return EXIT_FAILURE;
-    }
-    //filenames.push_back("tmproute.txt");
+    //cout << "\nOpening State File: " << filename_US_state << "\n\n";
+    //int TEST = 0;
+    //if (file_US_state.is_open()) {
+        //while (getline(file_US_state, filename_athlete) && !terminateProgram) {
+            //filenames.push_back(filename_athlete);
+            //if (TEST++ == 1000) {break;}
+        //}
+    //} else {
+        //cout << "State File not opened\n";
+        //return EXIT_FAILURE;
+    //}
+    filenames.push_back("tmproute.txt");
     cout << "filenames.size() = " << filenames.size() << "\n\n";
 
     int num = filenames.size();

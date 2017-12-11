@@ -38,6 +38,7 @@ add_executable(routing-algorithm routingAlgorithm.cpp)
 find_package(LibOSRM REQUIRED)
 
 target_link_libraries(create-heatmap ${LibOSRM_LIBRARIES} ${LibOSRM_DEPENDENT_LIBRARIES})
+target_link_libraries(routing-algorithm ${LibOSRM_LIBRARIES} ${LibOSRM_DEPENDENT_LIBRARIES})
 include_directories(SYSTEM ${LibOSRM_INCLUDE_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LibOSRM_CXXFLAGS}")
 
