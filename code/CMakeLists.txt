@@ -33,7 +33,7 @@ add_executable(reduce-osm-files reduceOsmFiles.cpp)
 add_executable(find-node-coordinates findNodeCoordinates.cpp)
 add_executable(remove-extraneous-nodes removeExtraneousNodes.cpp)
 add_executable(create-html-file createHtmlFile.cpp)
-add_executable(routing-algorithm routingAlgorithm.cpp)
+add_executable(routing-algorithm routing-algorithm.cpp)
 
 find_package(LibOSRM REQUIRED)
 

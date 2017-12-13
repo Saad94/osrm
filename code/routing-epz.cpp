@@ -12,6 +12,9 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <sys/time.h>
+
+#include "commons.cpp"
+
 using namespace std;
 
 #define EARTH_RADIUS_METERS 6371000
@@ -170,6 +173,21 @@ bool checkRouteAlreadyExist(vector<Route> & routes, vector<Point> route){
 }
 
 /*
+ * Read route information from a string
+ */
+Route getRouteFromString(string line) {
+  Route route;
+  stringstream str = prepareLineForParsing(line);
+  double lon, lat;
+  while (str >> lat) {
+    str >> lon;
+    route.push_back(Point(lat, lon));
+  }
+
+  return route;
+}
+
+/*
  * Read route information from a specified file
  */
 void getRoutesFromFile(string path, vector<Route> & routes) {
@@ -177,15 +195,8 @@ void getRoutesFromFile(string path, vector<Route> & routes) {
   string line;
   if (file.is_open()) {
     while (getline(file, line)) {
-      line.erase(remove(line.begin(), line.end(), '['), line.end());
-      line.erase(remove(line.begin(), line.end(), ']'), line.end());
-      stringstream str(line);
-      double lon, lat;
-      vector<Point> route;
-      while (str >> lat) {
-        str >> lon;
-        route.push_back(Point(lat, lon));
-      }
+      Route route = getRouteFromString(line);
+
       if (checkRouteAlreadyExist(routes, route)){
 	    // cout << "culprit "<<path << endl;
       } else{
@@ -327,7 +338,7 @@ void prune(vector<Center> & centers, double threshold) {
  * find the routes which have common "home" point
  * r will be home's EPZ radius
  */
-Center NoEPZFindHomeLocation(vector<Route> & routes, double r) {
+Center findHomeLocation(vector<Route> & routes, double r) {
   vector<Center> centers;
   vector<Route> prunedRoutes;
 
@@ -354,7 +365,7 @@ Center NoEPZFindHomeLocation(vector<Route> & routes, double r) {
  * Prune home epz radius (home.r) from all the routes
  * And add point on the boundary of EPZ
  */
-void pruneAndAddBoundaryPoints(vector<Route> & routes, Center home) {
+vector<Route> pruneAndAddBoundaryPoints(vector<Route> routes, Center home) {
   for (int i = 0; i < routes.size() ; i++) {
     Route & route = routes[i];
     bool addToStart = false;
@@ -453,10 +464,12 @@ void pruneAndAddBoundaryPoints(vector<Route> & routes, Center home) {
       route.push_back(newPoint);
     }
   }
+
+  return routes;
 }
 
 void doStuff(vector<Route> & routes, double r) {
-  Center home = NoEPZFindHomeLocation(routes, r);
+  Center home = findHomeLocation(routes, r);
   pruneAndAddBoundaryPoints(routes, home);
 }
 
