@@ -78,9 +78,14 @@ ostream& operator<<(ostream& os, const Route v) {for (Point p : v) os << p << ",
 ostream& operator<<(ostream& os, const vector<Route> v) {for (Route r : v) os << r << "\n"; return os;}
 double radians(double deg) {return deg * PI / 180.0;}
 double degrees(double rad) {return rad * 180.0 / PI;}
-double length(double x, double y) {return sqrt(x*x + y*y);}
-double length(Point one) {return length(one.lon, one.lat);}
-double length(Point one, Point two) {return length(one.lon - two.lon, one.lat - two.lat);}
+string toString(Route route) {
+    stringstream str;
+    str.precision(10);
+    for (Point p : route) {
+        str << p.lat << " " << p.lon << " ";
+    }
+    return str.str();
+}
 
 Center merge(Center one, Center two) {
   unordered_set<Point> tmp;
@@ -436,33 +441,33 @@ vector<Route> pruneAndAddBoundaryPoints(vector<Route> routes, Center home) {
     /*
      * Add a point on the boundary of the EPZ
      */
-    if (addToStart) {
-      double avgLat    = home.p.lat;
-      Point XYPoint    = convertLatLonToXY(boundaryPointStart, avgLat);
-      Point XYHome     = convertLatLonToXY(home.p, avgLat);
-      Point XYDir      = Point(XYPoint.lat - XYHome.lat, XYPoint.lon - XYHome.lon);
-      double angle     = atan2(XYDir.lon, XYDir.lat);
-      double X         = home.r * cos(angle);
-      double Y         = home.r * sin(angle);
-      XYPoint.lon      = XYHome.lon + Y;
-      XYPoint.lat      = XYHome.lat + X;
-      Point newPoint   = convertXYToLatLon(XYPoint, avgLat);
-      route.insert(route.begin(), newPoint);
-    }
+    //if (addToStart) {
+      //double avgLat    = home.p.lat;
+      //Point XYPoint    = convertLatLonToXY(boundaryPointStart, avgLat);
+      //Point XYHome     = convertLatLonToXY(home.p, avgLat);
+      //Point XYDir      = Point(XYPoint.lat - XYHome.lat, XYPoint.lon - XYHome.lon);
+      //double angle     = atan2(XYDir.lon, XYDir.lat);
+      //double X         = home.r * cos(angle);
+      //double Y         = home.r * sin(angle);
+      //XYPoint.lon      = XYHome.lon + Y;
+      //XYPoint.lat      = XYHome.lat + X;
+      //Point newPoint   = convertXYToLatLon(XYPoint, avgLat);
+      //route.insert(route.begin(), newPoint);
+    //}
 
-    if (addToEnd){
-      double avgLat    = home.p.lat;
-      Point XYPoint    = convertLatLonToXY(boundaryPointEnd, avgLat);
-      Point XYHome     = convertLatLonToXY(home.p, avgLat);
-      Point XYDir      = Point(XYPoint.lat - XYHome.lat, XYPoint.lon - XYHome.lon);
-      double angle     = atan2(XYDir.lon, XYDir.lat);
-      double X         = home.r * cos(angle);
-      double Y         = home.r * sin(angle);
-      XYPoint.lon      = XYHome.lon + Y;
-      XYPoint.lat      = XYHome.lat + X;
-      Point newPoint   = convertXYToLatLon(XYPoint, avgLat);
-      route.push_back(newPoint);
-    }
+    //if (addToEnd){
+      //double avgLat    = home.p.lat;
+      //Point XYPoint    = convertLatLonToXY(boundaryPointEnd, avgLat);
+      //Point XYHome     = convertLatLonToXY(home.p, avgLat);
+      //Point XYDir      = Point(XYPoint.lat - XYHome.lat, XYPoint.lon - XYHome.lon);
+      //double angle     = atan2(XYDir.lon, XYDir.lat);
+      //double X         = home.r * cos(angle);
+      //double Y         = home.r * sin(angle);
+      //XYPoint.lon      = XYHome.lon + Y;
+      //XYPoint.lat      = XYHome.lat + X;
+      //Point newPoint   = convertXYToLatLon(XYPoint, avgLat);
+      //route.push_back(newPoint);
+    //}
   }
 
   return routes;
